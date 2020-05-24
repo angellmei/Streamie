@@ -5,9 +5,9 @@
 	session_start(); 
 
 	//$dbServername = "localhost";
-	$dbServername = "192.168.2.88";
+	$dbServername = "XXX.XXX.X.XX";
 	$dbUsername = "streamie-db";
-	$dbPassword = "kM514Sl8AgIR3jTc";
+	$dbPassword = "XXXXXXXXXXX";
 	$dbName = "csc301_db";
 	
 	$dbconn = mysqli_connect($dbServername, $dbUsername, $dbPassword, $dbName);
@@ -247,7 +247,7 @@
 
 ?>
 
-<link rel="stylesheet" href="register.css">
+<link rel="stylesheet" href="./register.css">
 <!DOCTYPE html>
 <html>
 <head>
