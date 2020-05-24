@@ -1,10 +1,31 @@
-<link rel="stylesheet" href="./sync_master.css">
-
-
 <!DOCTYPE html>
 <html>
     <head>
-        <title class="title">Streamie - Master</title>
+      <link rel="stylesheet" href="../css/sync.css">
+      <title class="title">Streamie - All Synced</title>
+        <style>
+        h {
+          font-family: verdana;
+          font-size: 25px;
+        }
+        p {
+          font-family: verdana;
+          font-size: 13px;
+        }
+        span {
+          font-family: verdana;
+          font-size: 13px;
+        }
+        input[type=button] {
+          background-color: gray;
+          border:  2px solid white;
+          color: white;
+          padding: 8px 16px;
+          text-decoration: none;
+          margin: 3px 1.5px;
+          cursor: pointer;
+        }
+        </style>
     </head>
     <body>
         <script type="text/javascript" src="//www.google.com/jsapi"></script>
@@ -12,32 +33,34 @@
         <script type='text/javascript' src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
         <script src="https://www.youtube.com/iframe_api"></script>
         <h1>Streamie - Watch videos with friends!</h1>
-        <form action="login.html">
+        <form action="./Login_page/login.html">
           <input type="submit" id="btn_logoff" value="Log Off">
         </form>
-
-
         <div>
-        <input type="text" id="video_url" style="width: 600px" placeholder="Paste your Youtube video's URL here..." required/>
+        <input type="text" id="video_url" style="width: 600px" placeholder="Paste your Youtube video's URL here..."/>
         <input type="button" id="btn_play" value="Play" onclick="changeURL()"/>
-        <input type="button" id="btn_host" value="Start Hosting" onclick="hostingAction()"/>
-        <form action="./all_sync_players.html">
-            <input type="submit" class="switchModeBtn" value="Switch Mode (All Controlling)">
-          </form>
+        <input type="button" id="btn_play" value="Take Control" onclick="takeControl()"/>
+        <form action="./sync_master.html">
+          <input type="submit" class="switchModeBtn" value="Lock Mode (Controller)">
+        </form>
+        <form action="./sync_viewer.html">
+          <input type="submit" class="switchModeBtn" value="Lock Mode (Viewer)">
+        </form>
         <hr></hr>
         </div>
         <div class="state">
-            <span class="users">No user is watching the stream</span>
+            <span class="users">No user detected...</span>
+            <p></p>
+            <span class="vid">You are not watching anyone's stream now. First, paste your invite link to the textbox above, then click Join Stream to join one's stream.</span>
         </div>
 
-        <p id="video_displaying" class="video_display" style="text-align: center;">You are not streaming any video now. First, click Start Hosting, then paste your Youtube link to above textbox and click Play to start video sharing.</div>
-        <p></p>
         <table style="width: 100%;">
           <tr>
             <th>
         <div class="chatContainer">
-        <div id="videomaster" class="video"></div>
-        <p id="demo"></p>
+          <div id="videomaster"></div>
+          <p id="con">Controlling Status: Idling and Not Controlling Anything...</p>
+          <p id="demo"></p>
         </th>
         <th>
         </body>
@@ -52,22 +75,21 @@
         </tr>
       </tr>
     </table>
-    </div>
-          <div class="btn_copy">
-            <table style="width: 100%;">
-              <tr>
-                <th>
-                <input type="image" src="../assets/clipboard.png" value="Shareable link" onclick="getURL()"/>
-                <p>Streamie Link</p>
-              </th>
-              <th>
-                <input type="image" src="../assets/clipboard.png" value="Shareable link" onclick="getYoutubeURL()"/>
-                <p>YouTube Link</p>
-              </th>
-            </tr>
-            </tr>
-          </table>
-        </div>
+    <div class="btn_copy">
+      <table style="width: 100%;">
+        <tr>
+          <th>
+          <input type="image" src="../assets/clipboard.png" value="Shareable link" onclick="getURL()"/>
+          <p>Streamie Link</p>
+        </th>
+        <th>
+          <input type="image" src="../assets/clipboard.png" value="Shareable link" onclick="getYoutubeURL()"/>
+          <p>YouTube Link</p>
+        </th>
+      </tr>
+      </tr>
+    </table>
+  </div>
         <script>
             var users = document.querySelector('.users'),
                 vid = document.querySelector('.vid'),
@@ -75,26 +97,20 @@
                 //websocket = new WebSocket("ws://127.0.0.1:60001/");
 
                 //if connect to server
-                websocket = new WebSocket("ws://edwinz.myqnapcloud.com:6699/");
+                websocket = new WebSocket("ws://edwinz.myqnapcloud.com:6688/");
 
                 //if connect in server in local
-                //websocket = new WebSocket("ws://192.168.2.88:6699/");
+                //websocket = new WebSocket("ws://192.168.2.88:6688/");
 
              var syncThreshold=0.15; // seconds, threshold for an acceptable time difference to prevent non-stop syncing
              var jumpThreshold=2; // seconds, threshold for a time difference that should be corrected by a rough jump
              var jumpDeadTime=500; // milliseconds, a dead time in which we don't sync after a jump
-             var default_vid='M7lc1UVf-VE';  //giving a defualted video id01viCoGdsmI;M7lc1UVf-VE
+             var default_vid='222';  //giving a defualted video id01viCoGdsmI;M7lc1UVf-VE
 
               // timeouts and intervals
              var timeSyncInterval;
              var syncActionTimeout=undefined;
-             var playerid="master";
-
-             //*uid
-             var uid="333";
-
-
-
+             var playerid="M7lc1UVf-VE";
             //---------------------------------------
             //---------------------------------------
 
@@ -103,9 +119,29 @@
                 switch (data.type) {
                     case 'users':
                         users.textContent = (
-                            "Currently "+data.count.toString() + " user" +
-                            (data.count == 1 ? "" : "(s)") + " in party");
+                          "Currently " + data.count.toString() + " user" +
+                          (data.count == 1 ? "" : "(s)") + " in party");
                         break;
+                    case 'masterPLAYING':
+                        masterplayer.playVideo();
+                        break;
+                    case 'masterPAUSED':
+                        masterplayer.pauseVideo();
+                        break;
+                    case 'url':
+                        vid.textContent = (
+                        "Currently playing:"+data.videoid.toString());
+                        masterplayer.loadVideoById(data.videoid);
+                        break;
+                    case 'seektomillis':
+                        document.getElementById("demo").innerHTML = "Syncing to master's progress: " + data.millis + " seconds of this video...";
+                        document.getElementById("con").innerHTML = "Controlling Status: Watching and Not Controlling Anything...";
+                        if (Math.abs(data.millis - masterplayer.getCurrentTime()) > 1){
+                            masterplayer.seekTo(data.millis);
+                        }
+                            break;
+                    case 'controller':
+                        document.getElementById("con").innerHTML = "You are Controlling the progress of this video...";
                     default:
                         console.error(
                             "unsupported event", data);
@@ -114,15 +150,13 @@
             //---------------------------------------------------
             function onYouTubeIframeAPIReady() {
               masterplayer = new YT.Player('videomaster', {
-                videoId: 'Bey4XXJAqS8', //giving illgeal videoId to make sure client doesn't initialze with any video
+                videoId: 'Bey4XXJAqS8',
                 events: {
                   onReady: syncTime,
                   onStateChange: syncStateChange
                 }
               });
             }
-
-
 
             function syncStateChange(e){
               if(e.data==YT.PlayerState.PLAYING){
@@ -132,6 +166,13 @@
               }
             }
 
+            function synctime(){
+                setTimeout(() => {
+                  var time_master=masterplayer.getCurrentTime();
+                  websocket.send(JSON.stringify({action: 'mcurtime'+time_master}));
+                }, 3000);
+            }
+
             function changeURL() {
               var fullURL=document.getElementById("video_url").value;
               var video_id = fullURL.split('v=')[1];
@@ -139,29 +180,13 @@
               if(ampersandPosition != -1) {
                 video_id = video_id.substring(0, ampersandPosition);
               }
-              websocket.send(JSON.stringify({action: "url"+video_id}));
+              vid.textContent = ("Currently playing:"+video_id.toString());
               masterplayer.loadVideoById(video_id);
-              document.getElementById("video_displaying").innerHTML = ("Currently streaming Youtube video(ID): "+video_id);
+              websocket.send(JSON.stringify({action: "url"+video_id}));
             }
 
-            function hostingAction() {
-              var hostButton = document.getElementById("btn_host");
-              if (hostButton.value == "Start Hosting") {
-                websocket.send(JSON.stringify({action: "muid"+uid}));
-                hostButton.value = "Stop Hosting";
-              } else if (hostButton.value == "Stop Hosting") {
-                //websocket.close();
-                hostButton.value = "Start Hosting";
-              }
-            }
-
-            function synctime(){
-
-                setTimeout(() => {
-                  var time_master=masterplayer.getCurrentTime();
-                  websocket.send(JSON.stringify({action: 'mcurtime'+time_master}));
-                }, 2000);
-
+            function takeControl() {
+              websocket.send(JSON.stringify({action: "controlling"}));
             }
 
             function syncTime(){
@@ -179,8 +204,8 @@
                 }
               },5000);
             }
-            
-          // copies URL to share
+
+            // copies URL to share
           function getURL() {
             var URL = window.location.href;
             const el = document.createElement('textarea');
@@ -203,7 +228,8 @@
             el.hidden = true;
           }
 
-          const CLIENT_ID = '4cNswoNqM2wVFHPg';
+          // BELOW IS SCALEDRONE CODE
+            const CLIENT_ID = '4cNswoNqM2wVFHPg';
 
 const drone = new ScaleDrone(CLIENT_ID, {
   data: { // Will be sent out as clientData via events
@@ -334,4 +360,5 @@ function addMessageToListDOM(text, member) {
 }
 
         </script>
+    </body>
 </html>

@@ -5,9 +5,9 @@
 	session_start(); 
 
 	//$dbServername = "localhost";
-	$dbServername = "192.168.2.88";
+	$dbServername = "XXX.XXX.X.XX";
 	$dbUsername = "streamie-db";
-	$dbPassword = "kM514Sl8AgIR3jTc";
+	$dbPassword = "XXXXXXXXXXX";
 	$dbName = "csc301_db";
 	
 	$dbconn = mysqli_connect($dbServername, $dbUsername, $dbPassword, $dbName);
@@ -134,7 +134,7 @@
 
 				$title = $_POST['title'];
 				$gender = $_POST['gender'];
-				//$data = $_POST['Register_data'];
+				//$data = $_POST['Register_Data_Test'];
 				$rid = rand(1000000, 9999999);
 
 
@@ -221,7 +221,7 @@
 
 
 
-				$fp = fopen('Register_data', 'a');
+				$fp = fopen('Register_Data_Test', 'a');
 				$string = $name.",".$UserId.",".$new_password.",".$title.",".$gender.","."\n";
 
 				//fwrite($fp, $data);
@@ -247,7 +247,7 @@
 
 ?>
 
-<link rel="stylesheet" href="register.css">
+<link rel="stylesheet" href="./register.css">
 <!DOCTYPE html>
 <html>
 <head>
