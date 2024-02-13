@@ -58,13 +58,10 @@
              var users = document.querySelector('.users'),
                  vid = document.querySelector('.vid'),
 
-                  //if test in local
+                  // Local Test Websocket
                   //websocket = new WebSocket("ws://127.0.0.1:60001/");
 
-                  //if connect to server
-                  //websocket = new WebSocket("ws://edwinz.myqnapcloud.com:6699/");
-
-                  //if connect in server in local
+                  // Local Server Connection
                   websocket = new WebSocket("ws://192.168.2.88:6699/");
 
              var syncThreshold=0.15; // seconds, threshold for an acceptable time difference to prevent non-stop syncing
